@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A modern, minimal personal expense tracker with visualizations. Track expenses, view statistics, and analyze spending patterns.">
+    <meta name="keywords" content="expense tracker, budget, finance, money management, spending tracker">
+    <meta name="author" content="Expense Tracker">
+    <meta name="theme-color" content="#3b82f6">
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Expense Tracker">
+    <meta property="og:description" content="Track your expenses with beautiful visualizations">
+    <meta property="og:image" content="./og-image.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <title>Expense Tracker - Personal Finance Manager</title>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="style.css" as="style">
+    <link rel="preload" href="script.js" as="script">
+    
+    <!-- Chart.js with defer -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Register Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then((registration) => {
+                        console.log('✅ Service Worker registered:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log('❌ Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Expense Tracker</h1>
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <span id="theme-icon">🌙</span>
+                <span id="theme-text">Dark</span>
+            </button>
+        </div>
+
+        <div class="summary-grid">
+            <div class="summary-card">
+                <div class="summary-icon total">💵</div>
+                <div class="summary-info">
+                    <h3>Total Expenses</h3>
+                    <p id="total-amount">₹0.00</p>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-icon count">📊</div>
+                <div class="summary-info">
+                    <h3>Total Transactions</h3>
+                    <p id="total-count">0</p>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-icon avg">📈</div>
+                <div class="summary-info">
+                    <h3>Average per Transaction</h3>
+                    <p id="avg-amount">₹0.00</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div class="card">
+                <h2 class="card-title">➕ Add Expense</h2>
+                <div class="form-group">
+                    <label>Currency</label>
+                    <select class="currency-selector" id="currency-selector" onchange="changeCurrency(this.value)">
+                        <option value="INR" selected>🇮🇳 INR (₹)</option>
+                        <option value="USD">🇺🇸 USD ($)</option>
+                        <option value="EUR">🇪🇺 EUR (€)</option>
+                        <option value="GBP">🇬🇧 GBP (£)</option>
+                    </select>
+                </div>
+                <form id="expense-form" onsubmit="addExpense(event)">
+                    <div class="form-group">
+                        <label>Amount</label>
+                        <input type="number" id="amount" step="0.01" min="0.01" required placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="category" required>
+                            <option value="">Select category</option>
+                            <option value="food">🍔 Food</option>
+                            <option value="transport">🚗 Transport</option>
+                            <option value="entertainment">🎬 Entertainment</option>
+                            <option value="bills">💡 Bills</option>
+                            <option value="shopping">🛍️ Shopping</option>
+                            <option value="healthcare">🏥 Healthcare</option>
+                            <option value="others">📦 Others</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description (Optional)</label>
+                        <input type="text" id="description" placeholder="What was this for?">
+                    </div>
+                    <button type="submit" class="btn">
+                        <span>➕</span> Add Expense
+                    </button>
+                </form>
+            </div>
+
+            <div class="card viz-section">
+                <div class="viz-header">
+                    <h2 class="card-title">📊 Visualizations</h2>
+                    <div class="viz-tabs">
+                        <button class="viz-tab active" onclick="switchViz('pie', this)">🥧 Pie</button>
+                        <button class="viz-tab" onclick="switchViz('line', this)">📈 Line</button>
+                        <button class="viz-tab" onclick="switchViz('stats', this)">📋 Stats</button>
+                    </div>
+                </div>
+                <div class="viz-content" id="viz-content">
+                    <div class="chart-container">
+                        <canvas id="chart-canvas"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">📋 Recent Expenses</h2>
+            <div class="table-container">
+                <table id="expense-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expense-list"></tbody>
+                </table>
+            </div>
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <div class="empty-state-icon">📭</div>
+                <h3>No expenses yet</h3>
+                <p>Add your first expense to see it here</p>
+            </div>
+        </div>
+            <!-- Footer Section -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-main">
+                    <p class="footer-text">Made with <span class="heart">❤️</span> by Sushil RK</p>
+                </div>
+                <div class="footer-github">
+                    <a href="https://github.com/sushil3050-ctrl" target="_blank" rel="noopener noreferrer" class="github-link">
+                        <svg class="github-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                        </svg>
+                        <span class="github-text">Star the repository</span>
+                    </a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
