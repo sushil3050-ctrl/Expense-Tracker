@@ -4,7 +4,6 @@ A modern, minimal personal expense tracker with beautiful visualizations. Track 
 
 **Made with ❤️ by Sushil RK**
 
-![Expense Tracker Screenshot](./screenshot.png)
 
 ## ✨ Features
 
