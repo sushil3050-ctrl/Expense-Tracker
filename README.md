@@ -1,4 +1,4 @@
-# 💰 Expense Tracker
+# 💰 Money Trail 
 
 A modern, minimal personal expense tracker with beautiful visualizations. Track your expenses, view statistics, and analyze your spending patterns with an intuitive interface.
 
