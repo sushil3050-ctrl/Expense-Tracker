@@ -1,0 +1,25 @@
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDE/Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# Temporary Files
+*.tmp
+.cache/
+
+# Original combined file (not needed anymore)
+expense-tracker.html
+
+# Local development
+node_modules/
+dist/
+build/
