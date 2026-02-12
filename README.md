@@ -4,6 +4,7 @@ A modern, minimal personal expense tracker with beautiful visualizations. Track 
 
 **Made with ❤️ by Sushil RK**
 
+[Launch Money Trail](moneytrail-sushilrk.vercel.app)
 
 ## ✨ Features
 
